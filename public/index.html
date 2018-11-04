@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css"></link>
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+
+    <!--
+      manifest.json provides metadata used when your web app is added to the
+      homescreen on Android. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
+
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        margin: auto;
+        height: 75%;
+        width: 75%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+      #floating-panel {
+        background-color: #fff;
+        border: 1px solid #999;
+        left: 25%;
+        padding: 5px;
+        position: absolute;
+        top: 10px;
+        z-index: 5;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
+    <div id="map"></div>
+    <script async defer 
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBW_4CFPF1EnAUoksk5Pwq1hex0cYLDqqk&libraries=visualization&callback=initMap">
+    </script>
+    <script>
+  
+      // This example requires the Visualization library. Include the libraries=visualization
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/ js?key=YOUR_API_KEY&libraries=visualization">
+
+      function getPoints(coords) {
+          // Define the LatLng coordinates for the polygon's path.
+          let triangleCoords = [];
+          for (let i = 0; i < coords.length; i++) {
+              triangleCoords.push(new google.maps.LatLng(coords[i][0], coords[i][1]));
+          }
+          return triangleCoords;
+      }
+    
+      function getPathCoords(coords) {
+          let output = [];
+          for (let i = 0; i < coords.length; i++) {
+              output.push({
+                  lat: coords[i][0],
+                  lng: coords[i][1],
+              });
+          }
+          return output;
+      }
+
+      function initMap() {
+        addr1 = $("#addr1").val();
+        addr2 = $("#addr2").val();
+
+        console.log("HERE"); 
+
+        $("#searchLocation").click(() => {
+          initMap();
+         });
+
+        if (!addr1 || !addr2) {
+          return;
+        }
+
+        $.ajax({
+             type: "GET",
+             url: `http://safebears.herokuapp.com/crime?addr1=${addr1}&addr2=${addr2}`
+         }).always(function(j) {
+            const vals = JSON.parse(j);
+            console.log(vals);
+    
+            var map, heatmap;
+    
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 16,
+                center: {lat: 37.8741363, lng: -122.2571693},
+                mapTypeId: 'roadmap'
+            });
+    
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: getPoints(vals['heatmap']),
+                map: map
+            });
+            console.log(map);
+    
+            let flightPath = new google.maps.Polyline({
+              path: getPathCoords(vals['path']),
+              geodesic: true,
+              strokeColor: '#1f85b0',
+              strokeOpacity: 1.0,
+              strokeWeight: 5
+            });
+    
+            flightPath.setMap(map);
+    
+            console.log(vals['rest']);
+    
+            for (let i = 0; i < vals['rest'].length; i++) {
+                flightPath = new google.maps.Polyline({
+                  path: getPathCoords(vals['rest'][i]),
+                  geodesic: true,
+                  strokeColor: '#c0392b',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 5
+                });
+                flightPath.setMap(map);
+            }
+          });
+        }
+
+    </script>
+
+  </body>
+</html>
