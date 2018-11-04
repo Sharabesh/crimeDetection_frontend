@@ -83,7 +83,8 @@ class Start extends React.Component {
 
       $.ajax({
         type: "GET",
-        url: url
+        url: url,
+        dataType: 'jsonp',
       }).always(function(o) {
         const response = o.predictions;
         console.log(response);
@@ -151,6 +152,7 @@ class Destination extends React.Component {
 
       $.ajax({
         type: "GET",
+        dataType: 'jsonp',
         url: url
       }).always(function(o) {
         const response = o.predictions;
