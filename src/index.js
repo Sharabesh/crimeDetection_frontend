@@ -90,9 +90,11 @@ class Start extends React.Component {
 
         var locations = [];
         var i;
-        for (i = 0; i < response.length; i++) { 
+          if (response) {
+        for (i = 0; i < response.length; i++) {
           locations.push({title: response[i].description})
         }
+          }
 
         temp.setState({
           isLoading: false,
@@ -156,9 +158,11 @@ class Destination extends React.Component {
 
         var locations = [];
         var i;
-        for (i = 0; i < response.length; i++) { 
+          if (response) {
+        for (i = 0; i < response.length; i++) {
           locations.push({title: response[i].description})
         }
+          }
 
         temp.setState({
           isLoading: false,
